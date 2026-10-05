@@ -1,0 +1,50 @@
+// SentinelOps - Unusual Cloud Sign-In Context Detection
+//
+// Purpose:
+// Identify recent sign-ins from a city that was not observed
+// for the same user during the previous 24-hour baseline.
+//
+// Data source:
+// Microsoft Entra ID SigninLogs
+//
+// Detection design:
+// 10-minute recent window
+// 24-hour baseline
+// User-based correlation
+// Sign-in city comparison
+
+let RecentWindow = 10m;
+let BaselineWindow = 24h;
+
+let RecentSignIns =
+    SigninLogs
+    | where TimeGenerated > ago(RecentWindow)
+    | summarize
+        RecentTime = max(TimeGenerated),
+        RecentIP = any(IPAddress),
+        RecentCity = any(tostring(LocationDetails.city)),
+        RecentCountry = any(tostring(LocationDetails.countryOrRegion)),
+        RecentApp = any(AppDisplayName)
+        by UserPrincipalName;
+
+let BaselineCities =
+    SigninLogs
+    | where TimeGenerated between (ago(BaselineWindow) .. ago(RecentWindow))
+    | summarize
+        KnownCities = make_set(tostring(LocationDetails.city))
+        by UserPrincipalName;
+
+RecentSignIns
+| join kind=leftouter BaselineCities on UserPrincipalName
+| where isnotempty(RecentCity)
+| where isnotempty(KnownCities)
+| where not(set_has_element(KnownCities, RecentCity))
+| project
+    RecentTime,
+    UserPrincipalName,
+    RecentIP,
+    RecentCity,
+    RecentCountry,
+    RecentApp,
+    KnownCities
+| order by RecentTime desc

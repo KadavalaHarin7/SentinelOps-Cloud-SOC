@@ -1,0 +1,40 @@
+# Secrets and credentials
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*.p12
+credentials.json
+secrets.json
+client_secret*
+token*
+*secret*
+
+# Azure / Microsoft credentials
+azure-credentials*
+azure-auth*
+service-principal*
+
+# ServiceNow credentials
+servicenow-credentials*
+servicenow-secrets*
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE / editor files
+.vscode/
+.idea/
+
+# Archives
+*.zip
+*.7z
+*.rar

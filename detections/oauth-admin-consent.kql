@@ -1,0 +1,55 @@
+// SentinelOps - OAuth Administrative Consent Detection
+//
+// Purpose:
+// Detect successful tenant-wide OAuth administrative consent activity
+// recorded in Microsoft Entra AuditLogs.
+//
+// Data source:
+// Microsoft Entra ID AuditLogs
+//
+// Detection focus:
+// ApplicationManagement -> Consent to application
+//
+// This query was developed against the AuditLogs schema used in the lab.
+
+AuditLogs
+| where TimeGenerated > ago(24h)
+| where Category == "ApplicationManagement"
+| where OperationName == "Consent to application"
+| where Result == "success"
+| extend Target = todynamic(TargetResources)
+| extend AppName = tostring(Target[0].displayName)
+| extend Modified = todynamic(Target[0].modifiedProperties)
+| mv-expand Modified
+| summarize Properties = make_bag(
+    pack(
+        tostring(Modified.displayName),
+        tostring(Modified.newValue)
+    )
+) by TimeGenerated, AppName, Result
+| extend AdminConsent = trim(
+    '"',
+    tostring(Properties["ConsentContext.IsAdminConsent"])
+)
+| extend AppOnly = trim(
+    '"',
+    tostring(Properties["ConsentContext.IsAppOnly"])
+)
+| extend OnBehalfOfAll = trim(
+    '"',
+    tostring(Properties["ConsentContext.OnBehalfOfAll"])
+)
+| extend Permissions = tostring(
+    Properties["ConsentAction.Permissions"]
+)
+| where AdminConsent == "True"
+| where OnBehalfOfAll == "True"
+| project
+    TimeGenerated,
+    AppName,
+    Result,
+    AdminConsent,
+    AppOnly,
+    OnBehalfOfAll,
+    Permissions
+| order by TimeGenerated desc
