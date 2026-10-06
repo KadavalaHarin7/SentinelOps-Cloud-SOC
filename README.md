@@ -111,6 +111,7 @@ Microsoft Entra ID
 &#x20;                 Update   Create
 
 
+![SentinelOps Architecture](architecture/sentinelops-architecture.png)
 
 Objectives
 
@@ -196,7 +197,7 @@ activity rather than being treated as proof of compromise.
 
 The KQL used for this detection is available in:
 
-detections/oauth-admin-consent.kql
+[detections/oauth-admin-consent.kql](detections/oauth-admin-consent.kql)
 
 
 
@@ -234,7 +235,7 @@ result documented as telemetry-positive and alert-inconclusive.
 
 The KQL used for this detection is available in:
 
-detections/unusual-signin-context.kql
+[detections/unusual-signin-context.kql](detections/unusual-signin-context.kql)
 
 
 
@@ -358,7 +359,7 @@ Project Documentation
 
 The detailed implementation report is available in:
 
-docs/SentinelOps-Technical-Report.pdf
+[SentinelOps Technical Report](docs/SentinelOps-Technical-Report.pdf)
 
 
 
@@ -386,7 +387,18 @@ the required licensing/access path.
 
 Therefore, this repository does not claim hands-on Defender XDR implementation.
 
+ Project Outcome
 
+This project demonstrates an end-to-end cloud SOC workflow covering:
+
+- Identity telemetry ingestion
+- KQL-based detection engineering
+- Sentinel incident investigation
+- Automated ITSM integration
+- Incident correlation and deduplication
+- ServiceNow create/update handling
+- Preservation of existing incident work notes
+- Evidence-based validation and documentation
 
 What I learned
 
